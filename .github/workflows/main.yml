@@ -30,7 +30,7 @@ jobs:
       api-key: ${{ secrets.MY_VKD_KEY }}
       sonarCloudToken: ${{ secrets.SONAR_TOKEN }}
     
-  # # Optional 0 or More CD Jobs as needed
+  # Optional 0 or More CD Jobs as needed
   CD:
      if: github.ref_type == 'tag'
      environment: production
