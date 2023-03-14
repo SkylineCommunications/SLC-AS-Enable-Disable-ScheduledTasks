@@ -13,7 +13,7 @@
         - name: Set up NuGet
           uses: nuget/setup-nuget@v1.1.1      
         - name: NuGet restore solution
-          run: nuget restore "Enable-Disable-CorrelationRules/AutomationScript.sln" -OutputDirectory ${{ github.workspace }}/packages
+          run: nuget restore "Enable-Disable-ScheduledTasks/AutomationScript.sln" -OutputDirectory ${{ github.workspace }}/packages
         - name: Deploy the artifact on the DataMiner System step
           uses: SkylineCommunications/Skyline-DataMiner-Deploy-Action@v1
           id: Build_and_upload_artifact_step
