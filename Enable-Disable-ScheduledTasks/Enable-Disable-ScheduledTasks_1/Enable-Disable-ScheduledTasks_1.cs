@@ -128,7 +128,7 @@ namespace AutomationTest_2
 
 				new object[] // repeat actions
                 {
-					//new string[]
+					//new string[] 
 					//{
 					//	"automation",           // action type 
 					//	scriptName,             // name of automation script
