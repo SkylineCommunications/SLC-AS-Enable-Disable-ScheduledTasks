@@ -55,7 +55,7 @@ namespace AutomationTest_2
 	using System.Linq;
 	using Skyline.DataMiner.Automation;
 	using Skyline.DataMiner.Core.DataMinerSystem.Automation;
-	using Skyline.DataMiner.Library.Common;
+	using Skyline.DataMiner.Core.DataMinerSystem.Common;
 
 
 
@@ -77,10 +77,10 @@ namespace AutomationTest_2
 			// Retrieve Scheduled task on this agent
 			var dms = engine.GetDms();
 			var dma = dms.GetAgents().First();
-			var schedulerTask = GetTask (dma, input);
+			var schedulerTask = GetTask(dma, input);
 
 
-			if (scheduledTask.isEnabled == input.Enable)
+			if (schedulerTask.IsEnabled == input.Enable)
 			{
 				var msg = $"Scheduled task {input.Name} already has the desired state: IsEnabled = {input.Enable}";
 				engine.GenerateInformation(msg);
@@ -88,29 +88,27 @@ namespace AutomationTest_2
 			}
 
 			// Send update
-			//UpdateTask(object[] updateData);
-			updateTask(engine, dma, input, schedulerTask);
+			UpdateTask(engine, dma, input, schedulerTask);
 		}
 
 		private static IDmsSchedulerTask GetTask(IDma dma, Input input)
-        {
-			var task = dma.Scheduler.GetTasks().FirstOrDefault(X => X.TaskName == input.Name);
+		{
+			var task = dma.Scheduler.GetTasks().FirstOrDefault(x => x.TaskName == input.Name);
 			if (task == null)
-            {
+			{
 				throw new InvalidOperationException($"Scheduled task {input.Name} does not exist.");
-            }
+			}
 
 			return task;
-        }
+		}
 
-		private static void UpdateTask(Engine engine, Idma dma, Input input, IDmsSchedulerTask schedulerTask)
+		private static void UpdateTask(Engine engine, IDma dma, Input input, IDmsSchedulerTask schedulerTask)
 		{
 			// Build update data
-			//new object[] scheduledTask,
 			object[] updateData = new object[]
 			{
 				new object[]
-                {
+				{
 					new string[] // general info
 					{
 						schedulerTask.Id.ToString(), // [0] : task ID
@@ -126,7 +124,7 @@ namespace AutomationTest_2
 						null, ////endTime, // [10] : end run time (HH:MM) (only affects daily tasks)       
 						null, ////"", // [11]: minutes interval for weekly/monthly tasks either an enddate or a repeat count should be specified
 					},
-                }
+				},
 
 				new object[] // repeat actions
                 {
@@ -151,7 +149,7 @@ namespace AutomationTest_2
 
 		private Input GetInput(Engine engine)
 		{
-			string sheduleTaskName = engine.GetScriptParam("Name").Value;
+			string taskName = engine.GetScriptParam("Name").Value;
 			string enableRaw = engine.GetScriptParam("Status(Enable/Disable)").Value;
 
 			if (!enableRaw.Equals("Disable") && !enableRaw.Equals("Enable"))
@@ -162,16 +160,16 @@ namespace AutomationTest_2
 			return new Input
 			{
 				Enable = enableRaw.Equals("Enable"),
-				Name = scheduleTaskName;
-		};
+				Name = taskName,
+			};
+		}
 	}
-}
+
 
 	public sealed class Input
 	{
 		public bool Enable { get; set; }
 
-		public int Name { get; set; }
+		public string Name { get; set; }
 	}
-
-		
+}
