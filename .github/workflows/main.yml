@@ -44,12 +44,15 @@ jobs:
        - name: Skyline DataMiner Deploy Action
          uses: SkylineCommunications/Skyline-DataMiner-Deploy-Action@v1
          with:
-           # Stage deploy
-           stage: Deploy
-           # The API-key: generated in the DCP Admin app (https://admin.dataminer.services/) as authentication for a certain DataMiner System.
-           api-key: ${{ secrets.MY_VKD_KEY }}
-           # Id of the uploaded artifact
-           artifact-id: ${{ needs.CI.outputs.artifact-id }}
+            # The API-key generated in the DCP Admin app as authentication for a certain DataMiner System, saved in a GitHub secret
+            api-key: ${{ secrets.MY_VDK_KEY }}
+            # The path to the .sln file of the solution. Atm only DataMiner Automation Script solutions are supported. E.g ./Example/Script.sln. Required for stages: All and Upload.
+            solution-path: AutomationScript.sln # optional
+            # The chosen name of the artifact. E.g. MyPackageName.  Required for stages: All, Upload and Deploy.
+            artifact-name: EnableDisable-ScheduledTasks # Optional
+            # The version number for the artifact. Only required for a release run. (format A.B.C). E.g. 1.0.1. Required for stages Upload and All if no build number was provided instead.
+            version: 1.0.0 # optional
+           
 
 
 
