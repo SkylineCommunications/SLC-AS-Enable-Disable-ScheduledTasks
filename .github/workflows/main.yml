@@ -31,7 +31,7 @@ jobs:
       sonarCloudToken: ${{ secrets.SONAR_TOKEN }}
     
   # Optional 0 or More CD Jobs as needed
-  CD:
+  build:
      if: github.ref_type == 'tag'
      environment: production
      name: CD
