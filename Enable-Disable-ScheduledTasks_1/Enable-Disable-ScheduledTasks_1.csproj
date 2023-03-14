@@ -60,10 +60,7 @@
       <Version>1.1.0.1</Version>
     </PackageReference>
     <PackageReference Include="Skyline.DataMiner.Dev.Automation">
-      <Version>10.1.11</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Dev.Common">
-      <Version>10.1.11</Version>
+      <Version>10.0.0.5</Version>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers">
       <Version>1.1.118</Version>

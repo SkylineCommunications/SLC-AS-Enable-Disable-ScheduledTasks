@@ -48,7 +48,6 @@ DATE		VERSION		AUTHOR			COMMENTS
 dd/mm/2023	1.0.0.1		XXX, Skyline	Initial version
 ****************************************************************************
 */
-
 namespace AutomationTest_2
 {
 	using System;
@@ -57,16 +56,13 @@ namespace AutomationTest_2
 	using Skyline.DataMiner.Core.DataMinerSystem.Automation;
 	using Skyline.DataMiner.Core.DataMinerSystem.Common;
 
-
-
-
 	/// <summary>
-	/// DataMiner Script Class.
+	///     DataMiner Script Class.
 	/// </summary>
 	public class Script
 	{
 		/// <summary>
-		/// The Script entry point.
+		///     The Script entry point.
 		/// </summary>
 		/// <param name="engine">Link with SLAutomation process.</param>
 		public void Run(Engine engine)
@@ -78,7 +74,6 @@ namespace AutomationTest_2
 			var dms = engine.GetDms();
 			var dma = dms.GetAgents().First();
 			var schedulerTask = GetTask(dma, input);
-
 
 			if (schedulerTask.IsEnabled == input.Enable)
 			{
@@ -127,7 +122,7 @@ namespace AutomationTest_2
 				},
 
 				new object[] // repeat actions
-                {
+				{
 					//new string[]
 					//{
 					//	"automation",           // action type 
@@ -138,8 +133,8 @@ namespace AutomationTest_2
 					//	"CHECKSETS:FALSE",
 					//	"DEFER:False",			// run sync
 					//}
-                },
-				new object[] {}, // final actions
+				},
+				new object[] { }, // final actions
 			};
 
 			// send update command
@@ -164,7 +159,6 @@ namespace AutomationTest_2
 			};
 		}
 	}
-
 
 	public sealed class Input
 	{
