@@ -51,10 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>11.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="SharpZipLib">
-      <Version>0.86.0</Version>
+      <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="Skyline.DataMiner.Core.DataMinerSystem.Automation">
       <Version>1.1.0.1</Version>
@@ -63,31 +60,10 @@
       <Version>1.1.0.1</Version>
     </PackageReference>
     <PackageReference Include="Skyline.DataMiner.Dev.Automation">
-      <Version>10.0.0.5</Version>
+      <Version>10.1.11</Version>
     </PackageReference>
     <PackageReference Include="Skyline.DataMiner.Dev.Common">
-      <Version>10.0.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Files.protobufnet">
-      <Version>10.0.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Files.Skyline.DataMiner.Storage.Types">
-      <Version>10.0.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Files.SLAnalyticsTypes">
-      <Version>10.0.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Files.SLLoggerUtil">
-      <Version>10.0.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Files.SLManagedAutomation">
-      <Version>10.0.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Files.SLNetTypes">
-      <Version>10.0.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Files.SLProtoBufLibrary">
-      <Version>10.0.0.5</Version>
+      <Version>10.1.11</Version>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers">
       <Version>1.1.118</Version>
@@ -98,7 +74,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties DisLinkedXmlFile="..\Enable-Disable-ScheduledTasks.xml" DisProjectType="automationScriptProject" DisLinkId="1" />
+      <UserProperties DisLinkId="1" DisProjectType="automationScriptProject" DisLinkedXmlFile="..\Enable-Disable-ScheduledTasks.xml" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
