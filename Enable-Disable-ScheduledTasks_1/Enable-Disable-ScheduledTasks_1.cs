@@ -45,7 +45,7 @@ Revision History:
 
 DATE		VERSION		AUTHOR			COMMENTS
 
-dd/mm/2023	1.0.0.1		XXX, Skyline	Initial version
+23/03/2023	1.0.0.1		JDE, Skyline	Initial version
 ****************************************************************************
 */
 namespace AutomationTest_2
@@ -108,16 +108,16 @@ namespace AutomationTest_2
 				{
 					schedulerTask.Id.ToString(), // [0] : task ID
 					schedulerTask.TaskName, ////taskName, // [1] : name
-					"", ////activStartDay, // [2] : start date (YYYY-MM-DD) (leave empty to have start time == current time)
-					"", ////activStopDay, // [3] : end date (YYYY-MM-DD)      (can be left empty)
+					schedulerTask.StartTime.Date.ToString(), ////activStartDay, // [2] : start date (YYYY-MM-DD) (leave empty to have start time == current time)
+					schedulerTask.EndTime.Date.ToString(), ////activStopDay, // [3] : end date (YYYY-MM-DD)      (can be left empty)
 					schedulerTask.StartTime.TimeOfDay.ToString(), ////startTime, // [4] : start run time (HH:MM)
 					schedulerTask.RepetitionType.ToString(), ////taskType, // [5] : task type     (daily   / monthly            / weekly /                      once)
-					"", ////runInterval, // [6] : run interval  (x minutes / 1,...,31,101,102   / 1,3,5,7 (1=monday, 7=sunday)) (101-112 -> months)
-					"", ////"", // [7] : # of repeats before final actions are executed
+					schedulerTask.RepetitionInterval, ////runInterval, // [6] : run interval  (x minutes / 1,...,31,101,102   / 1,3,5,7 (1=monday, 7=sunday)) (101-112 -> months)
+					schedulerTask.Repetitions.ToString(), ////"", // [7] : # of repeats before final actions are executed
 					schedulerTask.Description, ////taskDescription, // [8] : description
 					input.Enable.ToString().ToUpper(), // [9] : enabled (TRUE/FALSE)
 					schedulerTask.EndTime.TimeOfDay.ToString(), ////endTime, // [10] : end run time (HH:MM) (only affects daily tasks)       
-					"" ////"", // [11]: minutes interval for weekly/monthly tasks either an enddate or a repeat count should be specified
+					schedulerTask.EndTime.ToString() ////"", // [11]: minutes interval for weekly/monthly tasks either an enddate or a repeat count should be specified
 				},
 			},
 
