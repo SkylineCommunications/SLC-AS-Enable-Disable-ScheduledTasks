@@ -36,7 +36,7 @@ Any inquiries can be addressed to:
 	Belgium
 	Tel.	: +32 51 31 35 69
 	Fax.	: +32 51 31 01 29
-	E-mail	: info@skyline.be
+	E-mail	: info@skyline.behy
 	Web		: www.skyline.be
 	Contact	: Ben Vandenberghe
 
@@ -55,6 +55,7 @@ namespace AutomationTest_2
 	using Skyline.DataMiner.Automation;
 	using Skyline.DataMiner.Core.DataMinerSystem.Automation;
 	using Skyline.DataMiner.Core.DataMinerSystem.Common;
+
 
 	/// <summary>
 	///     DataMiner Script Class.
@@ -96,51 +97,52 @@ namespace AutomationTest_2
 
 			return task;
 		}
-
 		private static void UpdateTask(Engine engine, IDma dma, Input input, IDmsSchedulerTask schedulerTask)
 		{
 			// Build update data
 			object[] updateData = new object[]
 			{
-				new object[]
+						new object[]
+			{
+				new string[] // general info
 				{
-					new string[] // general info
-					{
-						schedulerTask.Id.ToString(), // [0] : task ID
-						null, ////taskName, // [1] : name
-						null, ////activStartDay, // [2] : start date (YYYY-MM-DD) (leave empty to have start time == current time)
-						null, ////activStopDay, // [3] : end date (YYYY-MM-DD)      (can be left empty)
-						null, ////startTime, // [4] : start run time (HH:MM)
-						null, ////taskType, // [5] : task type     (daily   / monthly            / weekly /                      once)
-						null, ////runInterval, // [6] : run interval  (x minutes / 1,...,31,101,102   / 1,3,5,7 (1=monday, 7=sunday)) (101-112 -> months)
-						null, ////"", // [7] : # of repeats before final actions are executed
-						null, ////taskDescription, // [8] : description
-						input.Enable ? "TRUE" : "FALSE", // [9] : enabled (TRUE/FALSE)
-						null, ////endTime, // [10] : end run time (HH:MM) (only affects daily tasks)       
-						null, ////"", // [11]: minutes interval for weekly/monthly tasks either an enddate or a repeat count should be specified
-					},
+					schedulerTask.Id.ToString(), // [0] : task ID
+					schedulerTask.TaskName, ////taskName, // [1] : name
+					"", ////activStartDay, // [2] : start date (YYYY-MM-DD) (leave empty to have start time == current time)
+					"", ////activStopDay, // [3] : end date (YYYY-MM-DD)      (can be left empty)
+					schedulerTask.StartTime.TimeOfDay.ToString(), ////startTime, // [4] : start run time (HH:MM)
+					schedulerTask.RepetitionType.ToString(), ////taskType, // [5] : task type     (daily   / monthly            / weekly /                      once)
+					"", ////runInterval, // [6] : run interval  (x minutes / 1,...,31,101,102   / 1,3,5,7 (1=monday, 7=sunday)) (101-112 -> months)
+					"", ////"", // [7] : # of repeats before final actions are executed
+					schedulerTask.Description, ////taskDescription, // [8] : description
+					input.Enable.ToString().ToUpper(), // [9] : enabled (TRUE/FALSE)
+					schedulerTask.EndTime.TimeOfDay.ToString(), ////endTime, // [10] : end run time (HH:MM) (only affects daily tasks)       
+					"" ////"", // [11]: minutes interval for weekly/monthly tasks either an enddate or a repeat count should be specified
 				},
+			},
 
-				new object[] // repeat actions
-				{
-					//new string[]
-					//{
-					//	"automation",           // action type 
-					//	scriptName,             // name of automation script
-					//	elemLinked,             // example of linking element 123/456 to script dummy 1
-					//	paramLinked,            // ... other options & further linking of dummies to elements can be added
-					//	// elem2Linked,
-					//	"CHECKSETS:FALSE",
-					//	"DEFER:False",			// run sync
-					//}
-				},
-				new object[] { }, // final actions
+			new object[] // repeat actions
+			{
+				//new string[]
+				//{
+				//	"automation",           // action type 
+				//	scriptName,             // name of automation script
+				//	elemLinked,             // example of linking element 123/456 to script dummy 1
+				//	paramLinked,            // ... other options & further linking of dummies to elements can be added
+				//	// elem2Linked,
+				//	"CHECKSETS:FALSE",
+				//	"DEFER:False",			// run sync
+				//}
+			},
+			new object[] { } // final actions
 			};
 
 			// send update command
-			dma.Scheduler.UpdateTask(updateData);
+			int returnValue = dma.Scheduler.UpdateTask(updateData);
+			engine.GenerateInformation(string.Format("returnValue: {0}", returnValue));
 			engine.GenerateInformation($"Scheduled task {input.Name} has been {(input.Enable ? "ENABLED" : "DISABLED")}");
 		}
+
 
 		private Input GetInput(Engine engine)
 		{
