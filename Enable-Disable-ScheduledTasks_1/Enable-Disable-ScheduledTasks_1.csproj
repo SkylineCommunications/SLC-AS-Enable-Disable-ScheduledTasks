@@ -53,17 +53,8 @@
     <Compile Include="Enable-Disable-ScheduledTasks_1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Core.DataMinerSystem.Automation">
-      <Version>1.1.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Skyline.DataMiner.Core.DataMinerSystem.Common">
-      <Version>1.1.0.1</Version>
-    </PackageReference>
     <PackageReference Include="Skyline.DataMiner.Dev.Automation">
-      <Version>10.0.0.5</Version>
+      <Version>10.1.1</Version>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers">
       <Version>1.1.118</Version>
@@ -74,7 +65,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties DisLinkedXmlFile="..\Enable-Disable-ScheduledTasks.xml" DisProjectType="automationScriptProject" DisLinkId="1" />
+      <UserProperties DisLinkId="1" DisProjectType="automationScriptProject" DisLinkedXmlFile="..\Enable-Disable-ScheduledTasks.xml" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

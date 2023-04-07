@@ -48,14 +48,14 @@ DATE		VERSION		AUTHOR			COMMENTS
 23/03/2023	1.0.0.1		JDE, Skyline	Initial version
 ****************************************************************************
 */
-namespace AutomationTest_2
+namespace Enable_Disable_ScheduledTasks_1
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Linq;
 	using Skyline.DataMiner.Automation;
-	using Skyline.DataMiner.Core.DataMinerSystem.Automation;
-	using Skyline.DataMiner.Core.DataMinerSystem.Common;
-
+	using Skyline.DataMiner.Net.Messages;
+	using Skyline.DataMiner.Net.Messages.Advanced;
 
 	/// <summary>
 	///     DataMiner Script Class.
@@ -72,11 +72,9 @@ namespace AutomationTest_2
 			Input input = GetInput(engine);
 
 			// Retrieve Scheduled task on this agent
-			var dms = engine.GetDms();
-			var dma = dms.GetAgents().First();
-			var schedulerTask = GetTask(dma, input);
+			var schedulerTask = GetTask(engine, input);
 
-			if (schedulerTask.IsEnabled == input.Enable)
+			if (schedulerTask.Enabled == input.Enable)
 			{
 				var msg = $"Scheduled task {input.Name} already has the desired state: IsEnabled = {input.Enable}";
 				engine.GenerateInformation(msg);
@@ -84,65 +82,145 @@ namespace AutomationTest_2
 			}
 
 			// Send update
-			UpdateTask(engine, dma, input, schedulerTask);
+			UpdateTask(engine, input, schedulerTask);
 		}
 
-		private static IDmsSchedulerTask GetTask(IDma dma, Input input)
+		private static SA[] GetActions(SchedulerAction[] actions)
 		{
-			var task = dma.Scheduler.GetTasks().FirstOrDefault(x => x.TaskName == input.Name);
-			if (task == null)
+			return actions.Select(x => new SA(GetScriptActions(x))).ToArray();
+		}
+
+		private static string[] GetScriptActions(SchedulerAction action)
+		{
+			if (action.ActionType == SchedulerActionType.Automation)
 			{
-				throw new InvalidOperationException($"Scheduled task {input.Name} does not exist.");
+				List<string> options = new List<string> { "automation", action.ScriptInstance.ScriptName };
+				foreach (object arrayItem in action.ScriptInstance.ProtocolIdToElementId)
+				{
+					var info = (AutomationScriptInstanceInfo)arrayItem;
+					options.Add($"PROTOCOL:{info.Key}:{info.Value.Replace("/", ":")}");
+				}
+
+				foreach (object arrayItem in action.ScriptInstance.ParameterIdToValue)
+				{
+					var info = (AutomationScriptInstanceInfo)arrayItem;
+					options.Add($"PARAMETER:{info.Key}:{info.Value}");
+				}
+
+				options.Add("CHECKSETS:" + (action.ScriptInstance.CheckSets ? "TRUE" : "FALSE"));
+				options.Add("DEFER:FALSE");
+
+				return options.ToArray();
 			}
 
-			return task;
+			if (action.ActionType == SchedulerActionType.Information)
+			{
+				return new string[] { "information", action.Message };
+			}
+
+			if (action.ActionType == SchedulerActionType.Notification)
+			{
+				List<string> options = new List<string>();
+				if (!String.IsNullOrEmpty(action.MailReportTemplate))
+				{
+					options.Add("report");
+					options.Add(action.MailReportTemplate);
+					options.Add(action.EmailSubj);
+					options.Add(action.Destination);
+					options.Add(action.EmailCC);
+					options.Add(action.EmailBCC);
+					options.Add(action.Message);
+					options.Add(action.MailReportTemplates[0].ElementID);
+				}
+				else
+				{
+					options.Add("notification");
+					options.Add(action.Message);
+					options.Add("email");
+					options.Add(action.Destination);
+					options.Add(action.EmailSubj);
+					options.Add(action.EmailCC);
+					options.Add(action.EmailBCC);
+				}
+
+				return options.ToArray();
+			}
+
+			throw new InvalidOperationException($"Scheduled Action type {action.ActionType} not supported yet.");
 		}
-		private static void UpdateTask(Engine engine, IDma dma, Input input, IDmsSchedulerTask schedulerTask)
+
+		private static SchedulerTask GetTask(Engine engine, Input input)
+		{
+			var responseMessage = engine.SendSLNetSingleResponseMessage(new GetInfoMessage(InfoType.SchedulerTasks)) as GetSchedulerTasksResponseMessage;
+			if (responseMessage == null)
+			{
+				throw new InvalidOperationException("Could not retrieve the scheduled task information from the system.");
+			}
+
+			SchedulerTask task;
+			foreach (var arrayItemTask in responseMessage.Tasks)
+			{
+				task = (SchedulerTask)arrayItemTask;
+				if (task.TaskName == input.Name)
+				{
+					return task;
+				}
+			}
+
+			throw new InvalidOperationException($"Scheduled task {input.Name} does not exist.");
+		}
+
+		private static void UpdateTask(Engine engine, Input input, SchedulerTask schedulerTask)
 		{
 			// Build update data
-			object[] updateData = new object[]
+			var setSchedulerInfoMessage = new SetSchedulerInfoMessage
 			{
-						new object[]
-			{
-				new string[] // general info
+				DataMinerID = schedulerTask.HandlingDMA,
+				HostingDataMinerID = schedulerTask.HandlingDMA,
+				Info = Int32.MaxValue,
+				What = 2,
+				Ppsa = new PPSA
 				{
-					schedulerTask.Id.ToString(), // [0] : task ID
-					schedulerTask.TaskName, ////taskName, // [1] : name
-					schedulerTask.StartTime.Date.ToString(), ////activStartDay, // [2] : start date (YYYY-MM-DD) (leave empty to have start time == current time)
-					schedulerTask.EndTime.Date.ToString(), ////activStopDay, // [3] : end date (YYYY-MM-DD)      (can be left empty)
-					schedulerTask.StartTime.TimeOfDay.ToString(), ////startTime, // [4] : start run time (HH:MM)
-					schedulerTask.RepetitionType.ToString(), ////taskType, // [5] : task type     (daily   / monthly            / weekly /                      once)
-					schedulerTask.RepetitionInterval, ////runInterval, // [6] : run interval  (x minutes / 1,...,31,101,102   / 1,3,5,7 (1=monday, 7=sunday)) (101-112 -> months)
-					schedulerTask.Repetitions.ToString(), ////"", // [7] : # of repeats before final actions are executed
-					schedulerTask.Description, ////taskDescription, // [8] : description
-					input.Enable.ToString().ToUpper(), // [9] : enabled (TRUE/FALSE)
-					schedulerTask.EndTime.TimeOfDay.ToString(), ////endTime, // [10] : end run time (HH:MM) (only affects daily tasks)       
-					schedulerTask.EndTime.ToString() ////"", // [11]: minutes interval for weekly/monthly tasks either an enddate or a repeat count should be specified
+					Ppsa = new PSA[]
+					{
+						new PSA
+						{
+							Psa = new SA[]
+							{
+								new SA(
+									new string[]
+									{
+										schedulerTask.Id.ToString(), // [0] : task ID
+										schedulerTask.TaskName, ////taskName, // [1] : name
+										schedulerTask.StartTime.Date.ToString("yyyy-MM-dd"), ////activStartDay, // [2] : start date (YYYY-MM-DD) (leave empty to have start time == current time)
+										schedulerTask.EndTime.Date.ToString("yyyy-MM-dd"), ////activStopDay, // [3] : end date (YYYY-MM-DD)      (can be left empty)
+										schedulerTask.StartTime.TimeOfDay.ToString(), ////startTime, // [4] : start run time (HH:MM)
+										schedulerTask.RepeatType.ToString().ToLower(), ////taskType, // [5] : task type     (daily   / monthly            / weekly /                      once)
+										schedulerTask.RepeatInterval, ////runInterval, // [6] : run interval  (x minutes / 1,...,31,101,102   / 1,3,5,7 (1=monday, 7=sunday)) (101-112 -> months)
+										schedulerTask.Repeat.ToString(), ////"", // [7] : # of repeats before final actions are executed
+										schedulerTask.Description, ////taskDescription, // [8] : description
+										input.Enable.ToString().ToUpper(), // [9] : enabled (TRUE/FALSE)
+										schedulerTask.EndTime.TimeOfDay.ToString(), ////endTime, // [10] : end run time (HH:MM) (only affects daily tasks)
+										schedulerTask.EndTime.ToString(), ////"", // [11]: minutes interval for weekly/monthly tasks either an enddate or a repeat count should be specified
+									}),
+							},
+						},
+						new PSA
+						{
+							Psa = GetActions(schedulerTask.Actions),
+						},
+						new PSA
+						{
+							Psa = GetActions(schedulerTask.FinalActions),
+						},
+					},
 				},
-			},
-
-			new object[] // repeat actions
-			{
-				//new string[]
-				//{
-				//	"automation",           // action type 
-				//	scriptName,             // name of automation script
-				//	elemLinked,             // example of linking element 123/456 to script dummy 1
-				//	paramLinked,            // ... other options & further linking of dummies to elements can be added
-				//	// elem2Linked,
-				//	"CHECKSETS:FALSE",
-				//	"DEFER:False",			// run sync
-				//}
-			},
-			new object[] { } // final actions
 			};
 
 			// send update command
-			int returnValue = dma.Scheduler.UpdateTask(updateData);
-			engine.GenerateInformation(string.Format("returnValue: {0}", returnValue));
+			engine.SendSLNetSingleResponseMessage(setSchedulerInfoMessage);
 			engine.GenerateInformation($"Scheduled task {input.Name} has been {(input.Enable ? "ENABLED" : "DISABLED")}");
 		}
-
 
 		private Input GetInput(Engine engine)
 		{
